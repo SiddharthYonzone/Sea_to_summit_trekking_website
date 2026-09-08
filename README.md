@@ -14,6 +14,31 @@ admin login + dashboard to manage bookings.
    - Mac: `/Applications/XAMPP/htdocs/seatosummit`
    - Linux: `/opt/lampp/htdocs/seatosummit`
 
+## 1b. Run with Docker
+
+Install Docker Desktop, then run these commands from the project folder:
+
+```bash
+docker compose up -d --build
+```
+
+Open `http://localhost:8080`. The PHP app and MySQL database start together;
+the first database startup imports `db.sql` automatically. MySQL data is kept
+in the `mysql_data` Docker volume.
+
+To stop the containers:
+
+```bash
+docker compose down
+```
+
+To remove the database and import `db.sql` again on the next startup:
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
 ## 2. Create the database
 
 1. Open `http://localhost/phpmyadmin` in your browser.
