@@ -79,6 +79,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    document.querySelectorAll('.ght-node-pin[data-x][data-y]').forEach(function (node) {
+        node.style.left = node.getAttribute('data-x') + '%';
+        node.style.top = node.getAttribute('data-y') + '%';
+    });
+
     // ---------- Trek detail: customise & live price ----------
     var basePriceEl = document.getElementById('basePrice');
     if (!basePriceEl) return;

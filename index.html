@@ -55,7 +55,6 @@ $heroYoutube = get_setting('hero_video_youtube', '');
 $ghtPeaks = [
         ['slug' => 'phewa-lake',     'name' => 'Phewa Lake',      'elev' => '742m',   'x' => 44.0, 'y' => 58.5, 'pos' => 'left'],
         ['slug' => 'tilicho-lake',   'name' => 'Tilicho Lake',    'elev' => '4,919m', 'x' => 29.5, 'y' => 33.0, 'pos' => 'top'],
-        ['slug' => 'tilicho-lake',   'name' => 'Tilicho Lake',    'elev' => '4,919m', 'x' => 29.5, 'y' => 33.0, 'pos' => 'top'],
         ['slug' => 'rara-lake',     'name' => 'Rara Lake',      'elev' => '2,990m', 'x' => 43.0, 'y' => 41.0, 'pos' => 'top'],
         ['slug' => 'annapurna',      'name' => 'Annapurna I',     'elev' => '8,091m', 'x' => 50.0, 'y' => 37.0, 'pos' => 'top'],
         ['slug' => 'machapuchare',   'name' => 'Machapuchare', 'elev' => '6,993m', 'x' => 50.5, 'y' => 36.0, 'pos' => 'bottom-right'],
@@ -102,8 +101,8 @@ $ghtPeaks = [
 
             <!-- Mountain Hotspots -->
             <?php foreach ($ghtPeaks as $peak): $iconFile = $ghtIconOverrides[$peak['slug']] ?? $peak['slug']; ?>
-                <div class="ght-node-pin peak-pos-<?= $peak['pos'] ?>"
-                     style="left:<?= $peak['x'] ?>%; top:<?= $peak['y'] ?>%;">
+                 <div class="ght-node-pin peak-pos-<?= $peak['pos'] ?>"
+                     data-x="<?= h($peak['x']) ?>" data-y="<?= h($peak['y']) ?>">
                     <div class="ght-point-dot"></div>
                     <div class="ght-leader-line"></div>
                     <a href="post-detail.php?slug=<?= h($peak['slug']) ?>"
@@ -119,8 +118,8 @@ $ghtPeaks = [
 
             <!-- Clickable & Hoverable City Hotspots -->
             <?php foreach ($ghtCities as $city): ?>
-                <div class="ght-node-pin city-pos-<?= $city['pos'] ?>"
-                     style="left:<?= $city['x'] ?>%; top:<?= $city['y'] ?>%;">
+                 <div class="ght-node-pin city-pos-<?= $city['pos'] ?>"
+                     data-x="<?= h($city['x']) ?>" data-y="<?= h($city['y']) ?>">
                     <div class="ght-point-dot"></div>
                     <div class="ght-leader-line"></div>
                     <a href="post-detail.php?slug=<?= h($city['slug']) ?>" class="ght-city-label">
