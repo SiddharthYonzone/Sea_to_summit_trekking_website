@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
         <?php if ($bookings && $bookings->num_rows > 0): ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>Trek</th><th>Start Date</th><th>Group</th><th>Accommodation</th><th>Transport</th><th>Total</th><th>Status</th></tr>
+                    <tr><th>Trek</th><th>Start Date</th><th>Group</th><th>Accommodation</th><th>Transport</th><th>Total</th><th>Status</th><th>View</th></tr>
                 </thead>
                 <tbody>
                 <?php while ($b = $bookings->fetch_assoc()): ?>
@@ -56,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
                         <td><?= h($b['trans_name']) ?></td>
                         <td>$<?= number_format($b['total_price']) ?></td>
                         <td><span class="status-pill <?= h($b['status']) ?>"><?= h($b['status']) ?></span></td>
+                        <td><a href="booking-confirmation.php?id=<?= (int)$b['id'] ?>&code=<?= urlencode(booking_confirmation_code($b['id'])) ?>" class="icon-btn icon-only" title="View booking confirmation" aria-label="View booking confirmation">&#128065;</a></td>
                     </tr>
                 <?php endwhile; ?>
                 </tbody>

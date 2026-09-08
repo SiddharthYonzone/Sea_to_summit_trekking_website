@@ -43,6 +43,15 @@ $sections = [
             'stat_safety_label'   => ['Stats', 'Stat 4 Label', 'text'],
         ],
     ],
+    'group_discounts' => [
+        'label' => 'Group Discounts',
+        'fields' => [
+            'group_discount_4'  => ['Discounts', '4 or more people (%)', 'text'],
+            'group_discount_6'  => ['Discounts', '6 or more people (%)', 'text'],
+            'group_discount_8'  => ['Discounts', '8 or more people (%)', 'text'],
+            'group_discount_10' => ['Discounts', '10 or more people (%)', 'text'],
+        ],
+    ],
     'why' => [
         'label' => '"Why Us" Section',
         'fields' => [
@@ -341,6 +350,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     gokyo-ri, lhotse, makalu, kangchenjunga).
                 </p>
             <?php endif; ?>
+            <?php if ($slug === 'group_discounts'): ?>
+                <p class="form-card-desc">
+                    Set the discount percentage for each minimum group size. The highest matching tier is applied,
+                    and the final booking total is rounded to the nearest whole $5.
+                </p>
+            <?php endif; ?>
             <?php if ($slug === 'social_login'): ?>
                 <p class="form-card-desc">
                     To enable "Continue with Google/Facebook", create an app in the
@@ -357,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="admin-form-grid">
                 <?php foreach ($section['fields'] as $key => $meta):
                     [$group, $label, $type] = $meta;
-                    $value = get_setting($key, ''); ?>
+                    $value = get_setting($key, strpos($key, 'group_discount_') === 0 ? '0' : ''); ?>
                     <div class="form-field <?= $type === 'textarea' ? 'full' : '' ?>">
                         <label><?= h($label) ?></label>
                         <?php if ($type === 'textarea'): ?>

@@ -105,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                     <td><span class="status-pill <?= h($b['status']) ?>"><?= h($b['status']) ?></span></td>
                     <td>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <a href="booking-confirmation.php?id=<?= (int)$b['id'] ?>&code=<?= urlencode(booking_confirmation_code($b['id'])) ?>" class="icon-btn icon-only" title="View booking confirmation" aria-label="View booking confirmation">&#128065;</a>
                             <a href="booking-edit.php?id=<?= (int)$b['id'] ?>" class="icon-btn">Edit</a>
                             <form method="POST" action="booking-delete.php" style="display:inline;">
                                 <input type="hidden" name="id" value="<?= (int)$b['id'] ?>">

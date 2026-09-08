@@ -3,7 +3,7 @@
 // config.php - Database connection + global site settings
 // ============================================================
 
-// --- Local XAMPP defaults; production values come from environment variables ---
+// --- Docker defaults; production values come from environment variables ---
 define('DB_HOST', getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: 'localhost'));
 define('DB_PORT', (int) (getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: 3306)));
 define('DB_USER', getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: 'root'));
@@ -15,7 +15,7 @@ $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error .
-        "<br><br>Did you import <b>db.sql</b> into phpMyAdmin yet? See README.md.");
+        "<br><br>Start the Docker database with <b>docker compose up -d</b>. See README.md.");
 }
 $conn->set_charset('utf8mb4');
 
@@ -23,6 +23,7 @@ $conn->set_charset('utf8mb4');
 define('SITE_NAME', 'Sea to Summit Trekking');
 define('SITE_TAGLINE', 'Himalayan Specialists Since 1997');
 define('WHATSAPP_NUMBER', '9779800000000'); // change to your real WhatsApp number
+define('BOOKING_CODE_SECRET', getenv('BOOKING_CODE_SECRET') ?: 'sea-to-summit-booking-code-change-me');
 
 // --- Sessions (needed for admin login + "my bookings" lookups) ---
 if (session_status() === PHP_SESSION_NONE) {
@@ -75,6 +76,30 @@ function get_setting($key, $default = '') {
     return ($cache[$key] ?? null) !== null && $cache[$key] !== '' ? $cache[$key] : $default;
 }
 
+// Return the highest matching group discount percentage configured by admin.
+function group_discount_percent($groupSize) {
+    $discount = 0.0;
+    foreach ([4, 6, 8, 10] as $threshold) {
+        if ($groupSize >= $threshold) {
+            $discount = max($discount, min(100.0, (float)get_setting('group_discount_' . $threshold, '0')));
+        }
+    }
+    return $discount;
+}
+
+// Calculate the booking total consistently for display, new bookings, and edits.
+function calculate_booking_total($basePrice, $accommodationExtra, $transportExtra, $groupSize) {
+    $subtotal = ((float)$basePrice + (float)$accommodationExtra + (float)$transportExtra) * max(1, (int)$groupSize);
+    $discount = group_discount_percent($groupSize);
+    $discountedTotal = $subtotal * (1 - ($discount / 100));
+    return (float)(round($discountedTotal / 5) * 5);
+}
+
+function booking_confirmation_code($bookingId) {
+    $signature = strtoupper(substr(hash_hmac('sha256', (string)$bookingId, BOOKING_CODE_SECRET), 0, 8));
+    return 'STS-' . str_pad((string)$bookingId, 6, '0', STR_PAD_LEFT) . '-' . $signature;
+}
+
 // Helper: turn "Everest Base Camp" into "everest-base-camp"
 function slugify($text) {
     $text = strtolower(trim($text));
@@ -83,7 +108,7 @@ function slugify($text) {
     return $text !== '' ? $text : 'trek-' . time();
 }
 
-// Helper: the site's own base URL (e.g. http://localhost/seatosummit/),
+// Helper: the site's own base URL (e.g. http://localhost:8080/),
 // used to build the OAuth redirect_uri for Google/Facebook login so it
 // works regardless of what folder the site is installed under.
 function site_base_url() {
@@ -269,4 +294,37 @@ function process_video_upload($fileArray, &$errorOut) {
     }
 
     return 'assets/videos/' . $filename;
+}
+
+// Save a regular admin-uploaded image and return its project-relative path.
+function process_image_upload($fileArray, &$errorOut) {
+    if (!isset($fileArray['tmp_name']) || ($fileArray['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        $errorOut = 'Image upload failed.';
+        return null;
+    }
+
+    $info = @getimagesize($fileArray['tmp_name']);
+    $mimeMap = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp'
+    ];
+    if (!$info || !isset($mimeMap[$info['mime']])) {
+        $errorOut = 'Please upload a JPG, PNG, or WebP image.';
+        return null;
+    }
+
+    $destDir = __DIR__ . '/assets/images/treks/';
+    if (!is_dir($destDir) && !mkdir($destDir, 0775, true)) {
+        $errorOut = 'Could not create the image upload directory.';
+        return null;
+    }
+
+    $filename = 'trek-' . bin2hex(random_bytes(10)) . '.' . $mimeMap[$info['mime']];
+    if (!move_uploaded_file($fileArray['tmp_name'], $destDir . $filename)) {
+        $errorOut = 'Could not save the uploaded image.';
+        return null;
+    }
+
+    return 'assets/images/treks/' . $filename;
 }

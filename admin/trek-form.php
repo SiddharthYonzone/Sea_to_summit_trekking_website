@@ -19,6 +19,7 @@ $trek = [
     'includes_list' => ''
 ];
 $itineraryDays = [];       // [ [day_label, title, short_desc, detail_desc], ... ]
+$galleryImages = [];
 $attachedAccoms = [];      // accommodation_id => ['extra_price'=>.., 'is_default'=>..]
 $attachedTransports = [];  // transport_id => ['extra_price'=>.., 'is_default'=>..]
 
@@ -44,6 +45,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $trek['description']   = trim($_POST['description'] ?? '');
     $trek['highlights']    = trim($_POST['highlights'] ?? '');
     $trek['includes_list'] = trim($_POST['includes_list'] ?? '');
+    $galleryImages = array_values(array_filter(array_map('trim', $_POST['gallery_image'] ?? [])));
+
+    $uploadError = '';
+    if (!empty($_FILES['main_image_file']['name'])) {
+        $uploadedMainImage = process_image_upload($_FILES['main_image_file'], $uploadError);
+        if ($uploadedMainImage) {
+            $trek['image_url'] = $uploadedMainImage;
+        } else {
+            $errors[] = $uploadError;
+        }
+    }
+
+    $galleryFiles = $_FILES['gallery_image_file'] ?? null;
+    if ($galleryFiles && is_array($galleryFiles['name'] ?? null)) {
+        foreach ($galleryFiles['name'] as $fileIndex => $fileName) {
+            if ($fileName === '') continue;
+            $galleryFile = [
+                'name' => $fileName,
+                'type' => $galleryFiles['type'][$fileIndex] ?? '',
+                'tmp_name' => $galleryFiles['tmp_name'][$fileIndex] ?? '',
+                'error' => $galleryFiles['error'][$fileIndex] ?? UPLOAD_ERR_NO_FILE,
+                'size' => $galleryFiles['size'][$fileIndex] ?? 0
+            ];
+            $uploadedGalleryImage = process_image_upload($galleryFile, $uploadError);
+            if ($uploadedGalleryImage) {
+                $galleryImages[] = $uploadedGalleryImage;
+            } else {
+                $errors[] = $uploadError;
+            }
+        }
+    }
 
     if ($trek['title'] === '') $errors[] = 'Title is required.';
     if ($trek['region'] === '') $errors[] = 'Region is required.';
@@ -114,6 +146,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             $stmt->execute();
             $trekId = $conn->insert_id;
+        }
+
+        $deleteGallery = $conn->prepare("DELETE FROM trek_images WHERE trek_id = ?");
+        $deleteGallery->bind_param('i', $trekId);
+        $deleteGallery->execute();
+        $insertGallery = $conn->prepare("INSERT INTO trek_images (trek_id, image_url, sort_order) VALUES (?,?,?)");
+        foreach ($galleryImages as $sortOrder => $galleryImage) {
+            $insertGallery->bind_param('isi', $trekId, $galleryImage, $sortOrder);
+            $insertGallery->execute();
         }
 
         // --- Replace itinerary days ---
@@ -236,6 +277,14 @@ elseif ($isEdit) {
     while ($row = $res->fetch_assoc()) {
         $attachedTransports[$row['transport_id']] = ['extra_price' => $row['extra_price'], 'is_default' => $row['is_default']];
     }
+
+    $gallery = $conn->prepare("SELECT image_url FROM trek_images WHERE trek_id = ? ORDER BY sort_order ASC, id ASC");
+    $gallery->bind_param('i', $id);
+    $gallery->execute();
+    $galleryResult = $gallery->get_result();
+    while ($row = $galleryResult->fetch_assoc()) {
+        $galleryImages[] = $row['image_url'];
+    }
 }
 
 if (empty($itineraryDays)) {
@@ -268,7 +317,7 @@ $admin_active = $trek['product_type'] === 'tour' ? 'tours' : 'treks';
     </div>
 <?php endif; ?>
 
-<form method="POST" action="trek-form.php<?= $isEdit ? '?id=' . $id : '' ?>" id="trekForm">
+<form method="POST" action="trek-form.php<?= $isEdit ? '?id=' . $id : '' ?>" id="trekForm" enctype="multipart/form-data">
     <input type="hidden" name="id" value="<?= (int)$id ?>">
 
     <div class="form-card">
@@ -338,7 +387,30 @@ $admin_active = $trek['product_type'] === 'tour' ? 'tours' : 'treks';
             </div>
             <div class="form-field full">
                 <label>Main Image URL</label>
-                <input type="text" name="image_url" value="<?= h($trek['image_url']) ?>" placeholder="https://..." required>
+                <input type="text" name="image_url" value="<?= h($trek['image_url']) ?>" placeholder="https://...">
+                <label class="upload-label">Or choose a local image</label>
+                <input type="file" name="main_image_file" accept="image/jpeg,image/png,image/webp">
+            </div>
+            <div class="form-field full">
+                <label>Additional Trek Images</label>
+                <div class="hint">Add image URLs below, or choose multiple local JPG, PNG, or WebP files.</div>
+                <div id="galleryImageRows">
+                    <?php if (empty($galleryImages)): ?>
+                    <div class="gallery-row-grid">
+                        <input type="text" name="gallery_image[]" placeholder="https://...">
+                        <button type="button" class="remove-row-btn" title="Remove">&times;</button>
+                    </div>
+                    <?php endif; ?>
+                    <?php foreach ($galleryImages as $galleryImage): ?>
+                    <div class="gallery-row-grid">
+                        <input type="text" name="gallery_image[]" value="<?= h($galleryImage) ?>" placeholder="https://...">
+                        <button type="button" class="remove-row-btn" title="Remove">&times;</button>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" id="addGalleryImage" class="icon-btn add-row-btn">+ Add image URL</button>
+                <label class="upload-label">Choose local gallery images</label>
+                <input type="file" name="gallery_image_file[]" accept="image/jpeg,image/png,image/webp" multiple>
             </div>
         </div>
     </div>
@@ -347,14 +419,14 @@ $admin_active = $trek['product_type'] === 'tour' ? 'tours' : 'treks';
         <h3>Description</h3>
         <p class="form-card-desc">Rich text — add bold/italic text, links, and images (via URL) using the toolbar.</p>
         <div id="descriptionEditor" class="rich-editor"></div>
-        <textarea name="description" id="descriptionInput" style="display:none;"><?= $trek['description'] ?></textarea>
+        <textarea name="description" id="descriptionInput" class="rich-editor-fallback"><?= h($trek['description']) ?></textarea>
     </div>
 
     <div class="form-card">
         <h3>Highlights</h3>
         <p class="form-card-desc">Rich text — typically a bullet list, but format it however you like.</p>
         <div id="highlightsEditor" class="rich-editor"></div>
-        <textarea name="highlights" id="highlightsInput" style="display:none;"><?= $trek['highlights'] ?></textarea>
+        <input type="hidden" name="highlights" id="highlightsInput" value="<?= h($trek['highlights']) ?>">
     </div>
 
     <div class="form-card">
@@ -479,13 +551,20 @@ $admin_active = $trek['product_type'] === 'tour' ? 'tours' : 'treks';
         </template>
     </div>
 
+
     <div style="display:flex;gap:12px;margin-top:10px;">
         <button type="submit" class="btn btn-primary"><?= $isEdit ? 'SAVE CHANGES' : 'CREATE TREK' ?></button>
         <a href="treks.php" class="btn btn-outline">CANCEL</a>
     </div>
 </form>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.3/quill.snow.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.3/quill.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<template id="galleryImageTemplate">
+    <div class="gallery-row-grid">
+        <input type="text" name="gallery_image[]" placeholder="https://...">
+        <button type="button" class="remove-row-btn" title="Remove">&times;</button>
+    </div>
+</template>
 
 <?php include 'includes/footer.php'; ?>

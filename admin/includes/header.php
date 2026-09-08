@@ -8,7 +8,7 @@ if (!isset($admin_active)) $admin_active = '';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= isset($page_title) ? h($page_title) . ' | ' : '' ?>Admin &middot; <?= h(get_setting('site_name', 'Sea to Summit')) ?></title>
-<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/style.css?v=<?= @filemtime(__DIR__ . '/../../assets/css/style.css') ?: time() ?>">
 </head>
 <body>
 

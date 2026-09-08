@@ -2,22 +2,18 @@
 -- upgrade_v6.sql
 --
 -- Run this if you already had the previous version installed (GHT
--- map with the hand-drawn peaks) and want the new version: a real
--- GHT route map image with 15 clickable mountain/lake artwork
--- buttons instead of 11 plain dot markers.
+-- map with the hand-drawn peaks) and want the new route map artwork.
+-- The image files must also exist under assets/images/.
 --
--- You ALSO need to copy these files from this update's zip by hand
--- (SQL can't add files):
---   assets/images/ght-map.png            (replaces the old one)
---   assets/images/mountains/*.png         (15 small marker icons)
---   assets/images/mountains/full/*.png    (15 full-size blog header images)
---
--- Run once. How to run: phpMyAdmin -> your database -> SQL tab ->
--- paste this whole file -> Go.
+-- Docker command:
+-- docker compose exec -T db mysql -u root -proot_password_change_me
+-- seatosummit < upgrade_v6.sql
 -- ============================================================
 
 USE seatosummit;
 
+INSERT IGNORE INTO posts (slug, title, excerpt, body, image_url, is_published, published_at) VALUES ('rara-lake', 'Rara Lake (2,990m)', 'Nepal''s largest lake, hidden among the forests and mountains of the remote west.', 'Rara Lake is Nepal''s largest lake, set at 2,990 metres inside Rara National Park in the remote far-western Himalaya. Its deep blue water, pine forests, and quiet mountain trails make it one of Nepal''s most distinctive wilderness destinations.', 'assets/images/mountains/full/rara-Lake.png', 1, CURDATE());
+INSERT IGNORE INTO posts (slug, title, excerpt, body, image_url, is_published, published_at) VALUES ('api', 'API (7,123m)', 'A remote far-western Himalayan peak rising above the trails near the Tibetan border.', 'Api is a 7,123-metre peak in Nepal''s far-western Himalaya. The mountain rises above one of the country''s least-visited trekking regions, where remote valleys, high passes, and Tibetan-influenced villages define the journey.', 'assets/images/mountains/full/api.png', 1, CURDATE());
 INSERT IGNORE INTO posts (slug, title, excerpt, body, image_url, is_published, published_at) VALUES ('ama-dablam', 'Ama Dablam (6,812m)', 'One of the most photographed mountains in the world, its ridgelines said to resemble a mother''s necklace.', 'Ama Dablam rises to 6,812 metres above the Khumbu valley and is widely considered one of the most beautiful mountains on Earth -- its name translates roughly to "mother''s necklace," describing the hanging glacier on its flank that resembles the traditional double-pendant jewellery worn by Sherpa women.
 
 Unlike its much taller neighbours, Ama Dablam is a serious technical climb despite its modest height, and remains a favourite training peak for climbers preparing for the 8,000-metre giants nearby. For trekkers, it''s one of the constant, unmistakable silhouettes throughout the Everest Base Camp trail, especially striking from Tengboche and Dingboche.', 'assets/images/mountains/full/ama-dablam.png', 1, CURDATE());

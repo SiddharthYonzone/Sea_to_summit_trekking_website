@@ -5,16 +5,7 @@ with search/filter, a trek detail page with a live-pricing customise panel,
 a booking form backed by MySQL, a customer "My Bookings" lookup, and an
 admin login + dashboard to manage bookings.
 
-## 1. Install into XAMPP
-
-1. Start XAMPP and make sure **Apache** and **MySQL** are running (XAMPP
-   Control Panel → Start next to both).
-2. Copy the whole `seatosummit` folder into your XAMPP `htdocs` directory, e.g.:
-   - Windows: `C:\xampp\htdocs\seatosummit`
-   - Mac: `/Applications/XAMPP/htdocs/seatosummit`
-   - Linux: `/opt/lampp/htdocs/seatosummit`
-
-## 1b. Run with Docker
+## 1. Run with Docker
 
 Install Docker Desktop, then run these commands from the project folder:
 
@@ -24,7 +15,9 @@ docker compose up -d --build
 
 Open `http://localhost:8080`. The PHP app and MySQL database start together;
 the first database startup imports `db.sql` automatically. MySQL data is kept
-in the `mysql_data` Docker volume.
+in the `mysql_data` Docker volume. The app service mounts the project folder,
+so saved PHP, HTML, CSS, JavaScript, and image changes are available without
+rebuilding the image.
 
 To stop the containers:
 
@@ -39,26 +32,26 @@ docker compose down -v
 docker compose up -d --build
 ```
 
-## 2. Create the database
+The first database container startup imports `db.sql` automatically. The
+database is stored in the `mysql_data` Docker volume, so it survives app
+rebuilds. To reset it and import the schema again:
 
-1. Open `http://localhost/phpmyadmin` in your browser.
-2. Click the **Import** tab.
-3. Choose the file `db.sql` from this folder and click **Go**.
-   - This creates the `seatosummit` database, all tables, and seeds 5 treks
-     with accommodation/transport options, plus a default admin account.
-4. If your MySQL root user has a password (rare on default XAMPP), open
-   `config.php` and set `DB_PASS` to match.
+```bash
+docker compose down -v
+docker compose up -d --build
+```
 
-## 3. Run the site
+## 2. Run the site
 
-Visit: `http://localhost/seatosummit/index.html`
+Visit: `http://localhost:8080/index.html`
 
-That's it — no Composer, no extra PHP libraries needed. It only uses PHP's
-built-in `mysqli` extension, which XAMPP ships with by default.
+The included Docker image provides Apache, PHP, `mysqli`, cURL, GD, and the
+upload configuration required by the application. No local PHP or MySQL
+installation is needed.
 
 ## 4. Admin login
 
-Go to `http://localhost/seatosummit/login.php`
+Go to `http://localhost:8080/login.php`
 
 - Username: `admin`
 - Password: `admin123`
@@ -72,7 +65,7 @@ You'll land on the admin panel, which has three sections in the sidebar:
   bookings (you'll get a confirmation warning first).
 - **Edit Website** (`admin/settings.php`) — change the homepage hero text,
   stats numbers, "Why Us" section, call-to-action text, site name, WhatsApp
-  number, and footer text — all without touching any code. There's also a
+  number, group discount percentages, and footer text — all without touching any code. There's also a
   section at the bottom to change your admin password.
 
 ### Adding / editing a trek
@@ -93,8 +86,14 @@ time you edit.
 
 ### If you already set up the database before this update
 
-Run the migration that matches what you're upgrading from (phpMyAdmin →
-your database → SQL tab → paste the file's contents → Go), **in order**:
+Run the migration that matches what you're upgrading from with Docker:
+
+```bash
+Get-Content upgrade_v6.sql | docker compose exec -T db mysql -u root -proot_password_change_me seatosummit
+```
+
+Replace `upgrade_v6.sql` with the migration you need and run migrations **in
+order**:
 
 - Coming from the very first version (no admin panel at all) → import
   `upgrade_settings.sql`, then `upgrade_v2.sql`, then `upgrade_v3.sql`,
@@ -117,7 +116,13 @@ your database → SQL tab → paste the file's contents → Go), **in order**:
 - Starting completely fresh → just import `db.sql`, it has everything.
 
 ⚠️ **`upgrade_v3.sql` restructures core tables — back up your database first**
-(phpMyAdmin → your database → Export → Go). It preserves your existing
+with:
+
+```bash
+docker compose exec -T db mysqldump -u root -proot_password_change_me seatosummit > backup.sql
+```
+
+It preserves your existing
 treks and bookings, but your treks' old itinerary text is set aside
 (renamed to `itinerary_legacy`, not deleted) since the site now reads
 from the new structured `itinerary_days` table — you'll want to re-enter
@@ -141,7 +146,7 @@ To set a new one, generate a new hash with PHP:
 <?php echo password_hash('yourNewPassword', PASSWORD_DEFAULT);
 ```
 and update the `password_hash` column for the `admin` row in the `admins`
-table (via phpMyAdmin → SQL tab).
+table using the Docker MySQL client.
 
 ## 5. What's on the site now
 
@@ -199,9 +204,9 @@ Admin → Edit Website → Homepage Video. Upload an MP4/WebM/MOV and it
 plays muted, autoplay, and looped as the hero background instead of the
 static image (the image is still used as the video's poster frame, and
 stays the fallback if you remove the video later). Keep files
-compressed — PHP's default upload limits on a fresh XAMPP install are
-small (usually 2–8MB), so raise `upload_max_filesize` and `post_max_size`
-in `php.ini` and restart Apache if a larger upload fails.
+compressed. The Docker image sets `upload_max_filesize` and `post_max_size`
+to 64MB; rebuild the app container after changing those values in
+`Dockerfile`.
 
 ### Great Himalayan Trail section
 
@@ -375,14 +380,12 @@ connect this GitHub repository to a PHP-capable service such as Railway.
 The included `.htaccess` keeps `index.html` working as a PHP entry point under
 Apache. Do not deploy this application with GitHub Pages; it would expose the
 PHP source instead of executing it.
-- The Google/Facebook login flow uses PHP's `curl` extension, which XAMPP
-  enables by default. If login fails immediately with a fatal error,
-  check `php.ini` has `extension=curl` uncommented and restart Apache.
-- Logo upload (and its automatic white-version generation) uses PHP's
-  `gd` extension, also enabled by default in XAMPP (`extension=gd` in
-  `php.ini`). If uploading a logo fails, check that's on and Apache has
-  write access to `assets/images/` (and `assets/videos/` for hero video
-  uploads) — the default XAMPP setup already allows this.
+- The Google/Facebook login flow uses the cURL extension, which is installed
+  in the Docker image. If login fails immediately with a fatal error, rebuild
+  the app image with `docker compose up -d --build app`.
+- Logo upload (and its automatic white-version generation) uses the GD
+  extension, which is installed in the Docker image. Uploaded files are
+  stored in `assets/images/` and `assets/videos/` inside the app container.
 - The rich-text editor (Quill) and its stylesheet load from a public CDN
   (`cdnjs.cloudflare.com`), so the trek-editing screen needs an internet
   connection — the public-facing site itself does not.

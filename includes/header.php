@@ -2,6 +2,7 @@
 // Expects (optionally) $active to be set to one of: home, treks, options, about, info
 if (!isset($active)) $active = '';
 $b = isset($base) ? $base : '';
+$styleVersion = @filemtime(__DIR__ . '/../assets/css/style.css') ?: time();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +10,7 @@ $b = isset($base) ? $base : '';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= isset($page_title) ? h($page_title) . ' | ' : '' ?><?= h(get_setting('site_name', 'Sea to Summit')) ?> <?= h(get_setting('site_name_sub', 'Trekking')) ?></title>
-<link rel="stylesheet" href="<?= $b ?>assets/css/style.css">
+<link rel="stylesheet" href="<?= $b ?>assets/css/style.css?v=<?= $styleVersion ?>">
 <link rel="icon" type="image/png" href="<?= $b ?>assets/images/favicon.png">
 </head>
 <body>

@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </form>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.3/quill.snow.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.3/quill.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
 <?php include 'includes/footer.php'; ?>

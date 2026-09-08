@@ -45,6 +45,11 @@ $transStmt->bind_param('i', $trek['id']);
 $transStmt->execute();
 $transports = $transStmt->get_result();
 
+$galleryStmt = $conn->prepare("SELECT image_url FROM trek_images WHERE trek_id = ? ORDER BY sort_order ASC, id ASC");
+$galleryStmt->bind_param('i', $trek['id']);
+$galleryStmt->execute();
+$galleryImages = $galleryStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
 $itinStmt = $conn->prepare("SELECT * FROM itinerary_days WHERE trek_id = ? ORDER BY sort_order ASC, id ASC");
 $itinStmt->bind_param('i', $trek['id']);
 $itinStmt->execute();
@@ -66,15 +71,17 @@ $success = isset($_GET['booked']);
         </div>
     <?php endif; ?>
 
-    <div class="detail-gallery" style="margin-top:20px;">
+    <div class="detail-gallery<?= empty($galleryImages) ? ' detail-gallery-single' : '' ?>" style="margin-top:20px;">
         <div class="detail-gallery-main">
             <img src="<?= h($trek['image_url']) ?>" alt="<?= h($trek['title']) ?>">
         </div>
-        <div class="detail-gallery-side">
-            <div><img src="https://images.unsplash.com/photo-1544198365-f5d60b6d8190?w=500" alt=""></div>
-            <div><img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500" alt=""></div>
-            <div><img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=500" alt=""></div>
-        </div>
+        <?php if (!empty($galleryImages)): ?>
+            <div class="detail-gallery-side">
+                <?php foreach ($galleryImages as $galleryImage): ?>
+                    <div><img src="<?= h($galleryImage['image_url']) ?>" alt="<?= h($trek['title']) ?>"></div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="detail-top-meta"><?= h($trek['region']) ?> &middot; <?= h($trek['country']) ?></div>
@@ -133,7 +140,11 @@ $success = isset($_GET['booked']);
         </div>
 
         <div class="detail-side">
-            <form class="booking-panel" action="book.php" method="POST">
+            <form class="booking-panel" action="book.php" method="POST"
+                data-discount-4="<?= h(get_setting('group_discount_4', '0')) ?>"
+                data-discount-6="<?= h(get_setting('group_discount_6', '0')) ?>"
+                data-discount-8="<?= h(get_setting('group_discount_8', '0')) ?>"
+                data-discount-10="<?= h(get_setting('group_discount_10', '0')) ?>">
                 <input type="hidden" name="trek_id" value="<?= (int)$trek['id'] ?>">
                 <input type="hidden" id="basePrice" value="<?= h($trek['base_price']) ?>">
                 <input type="hidden" id="selectedAccommodation" name="accommodation_id" value="">
@@ -141,8 +152,16 @@ $success = isset($_GET['booked']);
                 <input type="hidden" id="selectedGroupSize" name="group_size" value="1">
 
                 <div class="panel-eyebrow">CUSTOMISE YOUR TREK</div>
+                <div class="panel-original-total" id="panelOriginalTotal" style="display:none;"></div>
                 <div class="panel-total" id="panelTotal">$<?= number_format($trek['base_price']) ?></div>
-                <div class="panel-total-label">Total</div>
+                <div class="panel-total-label" id="panelTotalLabel">Total</div>
+
+                <div class="panel-section-title">&#128101; GROUP SIZE</div>
+                <div class="group-size-row">
+                    <?php foreach ([1,2,4,6,8,10] as $size): ?>
+                        <button type="button" class="group-size-btn <?= $size === 1 ? 'selected' : '' ?>" data-size="<?= $size ?>"><?= $size ?></button>
+                    <?php endforeach; ?>
+                </div>
 
                 <div class="panel-section-title">&#127968; ACCOMMODATION</div>
                 <?php $first = true; while ($a = $accommodations->fetch_assoc()): ?>
@@ -177,13 +196,6 @@ $success = isset($_GET['booked']);
                         </div>
                     </div>
                     <?php $first = false; endwhile; ?>
-
-                <div class="panel-section-title">&#128101; GROUP SIZE</div>
-                <div class="group-size-row">
-                    <?php foreach ([1,2,4,6,8,10] as $size): ?>
-                        <button type="button" class="group-size-btn <?= $size === 1 ? 'selected' : '' ?>" data-size="<?= $size ?>"><?= $size ?></button>
-                    <?php endforeach; ?>
-                </div>
 
                 <div class="panel-section-title">&#128197; START DATE</div>
                 <div class="form-field">

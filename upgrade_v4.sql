@@ -5,12 +5,13 @@
 -- with the accommodation/transport catalog, social login, and rich-text
 -- trek editor) and want to keep your existing treks and bookings.
 --
--- If you're starting completely fresh, ignore this file — just import
+-- If you're starting completely fresh, ignore this file -- just import
 -- db.sql, it already includes everything below.
 --
--- Run once. How to run: phpMyAdmin → your database → SQL tab → paste
--- this whole file → Go.
---
+-- Docker command:
+-- docker compose exec -T db mysql -u root -proot_password_change_me
+-- seatosummit < upgrade_v4.sql
+-- ============================================================
 -- What this does:
 --  1. Adds a product_type column to treks (values 'trek' or 'tour') so
 --     the same table can power both the Treks and new Tours sections.

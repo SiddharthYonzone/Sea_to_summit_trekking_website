@@ -5,18 +5,12 @@
 -- the new Great Himalayan Trail map + clickable mountain profile posts
 -- without re-importing everything from scratch.
 --
--- No schema changes here — just 11 new rows in the existing `posts`
--- table (INSERT IGNORE, so it's safe to re-run and won't duplicate or
--- overwrite anything).
+-- No schema changes here -- just new rows in the existing `posts` table.
+-- The image files must also exist under assets/images/.
 --
--- ⚠️ This SQL file only adds the blog content. You also need to copy
--- the actual map image file — grab assets/images/ght-map.png from this
--- update's zip and drop it into your existing assets/images/ folder
--- (and update index.html / style.css with this version's GHT section
--- if you're hand-patching rather than replacing the whole file).
---
--- Run once. How to run: phpMyAdmin → your database → SQL tab → paste
--- this whole file → Go.
+-- Docker command:
+-- docker compose exec -T db mysql -u root -proot_password_change_me
+-- seatosummit < upgrade_v5.sql
 -- ============================================================
 
 USE seatosummit;

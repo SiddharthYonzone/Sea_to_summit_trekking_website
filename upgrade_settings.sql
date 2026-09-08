@@ -5,11 +5,12 @@
 -- don't want to lose your existing bookings/treks. It just adds
 -- the new site_settings table used by the "Edit Website" admin page.
 --
--- If you're starting fresh, ignore this file — just import db.sql,
+-- If you're starting fresh, ignore this file -- just import db.sql,
 -- it already includes this table.
 --
--- How to run: phpMyAdmin → select the `seatosummit` database →
--- SQL tab → paste this whole file → Go.
+-- Docker command:
+-- docker compose exec -T db mysql -u root -proot_password_change_me
+-- seatosummit < upgrade_settings.sql
 -- ============================================================
 
 USE seatosummit;

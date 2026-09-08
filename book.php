@@ -50,7 +50,7 @@ $stmt->execute();
 $trans = $stmt->get_result()->fetch_assoc();
 if (!$trans) die('Invalid transport option.');
 
-$total_price = ((float)$trek['base_price'] + (float)$accom['extra_price'] + (float)$trans['extra_price']) * $group_size;
+$total_price = calculate_booking_total($trek['base_price'], $accom['extra_price'], $trans['extra_price'], $group_size);
 
 $stmt = $conn->prepare("INSERT INTO bookings
     (trek_id, accommodation_id, transport_id, customer_id, full_name, email, phone, group_size, start_date, total_price, status)
@@ -58,6 +58,8 @@ $stmt = $conn->prepare("INSERT INTO bookings
 $stmt->bind_param('iiiisssisd',
     $trek_id, $accommodation_id, $transport_id, $customer_id, $full_name, $email, $phone, $group_size, $start_date, $total_price);
 $stmt->execute();
+$bookingId = $conn->insert_id;
+$bookingCode = booking_confirmation_code($bookingId);
 
-header('Location: trek-detail.php?slug=' . urlencode($trek['slug']) . '&booked=1');
+header('Location: booking-confirmation.php?id=' . $bookingId . '&code=' . urlencode($bookingCode));
 exit;

@@ -270,10 +270,11 @@ h1, h2, h3, h4 {
 /* ---------------- Trek detail page ---------------- */
 .detail-wrap { max-width: 1200px; margin: 0 auto; padding: 30px 40px 80px; }
 .detail-gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 24px; }
+.detail-gallery-single { grid-template-columns: 1fr; }
 .detail-gallery-main { position: relative; border-radius: 8px; overflow: hidden; height: 460px; }
 .detail-gallery-main img { width: 100%; height: 100%; object-fit: cover; }
-.detail-gallery-side { display: grid; grid-template-rows: repeat(3, 1fr); gap: 12px; }
-.detail-gallery-side div { border-radius: 8px; overflow: hidden; height: 100%; }
+.detail-gallery-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+.detail-gallery-side div { border-radius: 8px; overflow: hidden; height: 140px; }
 .detail-gallery-side img { width: 100%; height: 100%; object-fit: cover; }
 
 .detail-top-meta { color: var(--text-muted); font-size: 13px; letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase;}
@@ -308,8 +309,58 @@ h1, h2, h3, h4 {
 /* Booking / customise panel */
 .booking-panel { background: var(--navy-2); border: 1px solid var(--border); border-radius: 8px; padding: 26px; position: sticky; top: 90px; }
 .booking-panel .panel-eyebrow { color: var(--blue); font-size: 12px; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px; }
+.booking-panel .panel-original-total { color: #e57373; font-size: 14px; text-decoration: line-through; margin-bottom: 4px; }
 .booking-panel .panel-total { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
 .booking-panel .panel-total-label { color: var(--text-muted); font-size: 12px; margin-bottom: 22px; text-transform: none; }
+.booking-panel .panel-discount { min-height: 18px; color: var(--blue); font-size: 12px; margin-top: -18px; margin-bottom: 16px; text-align: center; }
+.booking-panel .group-discount-summary { color: var(--text-muted); font-size: 12px; line-height: 1.5; margin: -8px 0 16px; text-align: center; }
+
+/* ---------------- Booking confirmation receipt ---------------- */
+.confirmation-wrap { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
+.confirmation-actions { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 18px; }
+.confirmation-sheet { background: #fff; color: #18212b; border-top: 5px solid var(--blue); padding: 42px 48px; box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+.confirmation-kicker { color: #1673a8; font-size: 12px; font-weight: 800; letter-spacing: 2px; }
+.confirmation-sheet h1 { color: #18212b; font-size: 34px; margin: 8px 0 12px; }
+.confirmation-lead { color: #56616d; font-size: 15px; line-height: 1.6; text-transform: none; }
+.confirmation-code { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #eef7fb; color: #1673a8; padding: 14px 16px; margin: 28px 0; font-size: 12px; font-weight: 800; letter-spacing: 1px; }
+.confirmation-code strong { font-size: 20px; letter-spacing: 2px; }
+.confirmation-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; border-bottom: 1px solid #d9e0e5; padding-bottom: 28px; }
+.confirmation-grid span { display: block; color: #78838d; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+.confirmation-grid strong { display: block; color: #18212b; font-size: 14px; }
+.confirmation-sheet h2 { color: #1673a8; font-size: 14px; letter-spacing: 1px; margin: 30px 0 12px; }
+.confirmation-table-wrap { display: flex; justify-content: center; overflow-x: auto; }
+.confirmation-table { width: min(100%, 760px); min-width: 560px; border: 1px solid #b9c6cf; border-collapse: collapse; font-size: 14px; }
+.confirmation-table th { background: #eef7fb; border: 1px solid #b9c6cf; color: #1673a8; font-size: 11px; letter-spacing: 1px; padding: 12px 16px; text-align: center; text-transform: uppercase; }
+.confirmation-table th:nth-child(2), .confirmation-table td:nth-child(2), .confirmation-table th:last-child, .confirmation-table td:last-child { text-align: center; }
+.confirmation-table td { border: 1px solid #d1dbe1; padding: 14px 16px; color: #46515c; text-align: center; vertical-align: middle; }
+.confirmation-table td:first-child { width: 50%; }
+.confirmation-table td small { display: block; color: #7b858e; font-size: 12px; margin-top: 3px; }
+.confirmation-table td:last-child { color: #18212b; white-space: nowrap; }
+.confirmation-table tbody tr:nth-child(even) { background: #fafcfd; }
+.confirmation-table tbody tr:last-child td { border-bottom: 0; }
+.confirmation-table .confirmation-subtotal td { font-weight: 700; padding-top: 18px; }
+.confirmation-table .confirmation-discount td { color: #b33a3a; }
+.confirmation-table .confirmation-grand-total td { border-bottom: 0; color: #1673a8; font-size: 20px; font-weight: 800; padding-top: 18px; }
+.confirmation-words, .confirmation-note { color: #56616d; font-size: 13px; line-height: 1.6; text-transform: none; }
+.confirmation-words { border-top: 1px solid #d9e0e5; margin-top: 18px; padding-top: 18px; }
+.confirmation-note { background: #f4f6f7; padding: 14px 16px; margin-top: 24px; }
+
+@media print {
+    .no-print, .site-header, .site-footer, .floating-wa { display: none !important; }
+    body { background: #fff; }
+    .confirmation-wrap { max-width: none; padding: 0; }
+    .confirmation-sheet { box-shadow: none; border-top: 0; padding: 20px 0; }
+}
+
+@media (max-width: 640px) {
+    .confirmation-wrap { padding: 24px 12px 50px; }
+    .confirmation-sheet { padding: 28px 18px; }
+    .confirmation-sheet h1 { font-size: 28px; }
+    .confirmation-actions { justify-content: stretch; flex-direction: column; }
+    .confirmation-actions .btn { text-align: center; }
+    .confirmation-grid { grid-template-columns: repeat(2, 1fr); gap: 16px 12px; }
+    .confirmation-code { align-items: flex-start; flex-direction: column; gap: 8px; }
+}
 
 .panel-section-title { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: 1px; margin: 22px 0 12px; }
 
@@ -363,6 +414,7 @@ table.data-table th, table.data-table td { padding: 14px 16px; text-align: left;
 table.data-table th { color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px; background: rgba(255,255,255,0.02); }
 table.data-table tr:last-child td { border-bottom: none; }
 .status-pill { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.icon-only { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 32px; padding: 0; font-size: 17px; line-height: 1; }
 .status-pill.Pending { background: rgba(244,197,66,0.15); color: #f4c542; }
 .status-pill.Confirmed { background: rgba(88,214,141,0.15); color: #58d68d; }
 .status-pill.Cancelled { background: rgba(224,75,75,0.15); color: #ff9d9d; }
@@ -456,6 +508,7 @@ table.data-table tr:last-child td { border-bottom: none; }
 .form-card .form-card-desc { color: var(--text-muted); font-size: 12.5px; margin-bottom: 20px; text-transform: none; }
 .form-field textarea { width: 100%; padding: 11px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--navy); color: var(--text-light); font-size: 14px; outline: none; font-family: inherit; resize: vertical; }
 .form-field textarea:focus, .form-field select:focus { border-color: var(--blue); }
+.upload-label { display: block; margin-top: 12px; }
 .form-field select { width: 100%; padding: 11px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--navy); color: var(--text-light); font-size: 14px; outline: none; }
 .form-field .hint { color: var(--text-muted); font-size: 11px; margin-top: 5px; text-transform: none; }
 .form-field.checkbox-field { display: flex; align-items: center; gap: 8px; }
@@ -523,6 +576,9 @@ table.data-table tr:last-child td { border-bottom: none; }
 
 /* ---------------- Rich text editor (Quill) — dark theme override ---------------- */
 .rich-editor { background: var(--navy); border-radius: 6px; overflow: hidden; }
+.rich-editor-fallback { width: 100%; min-height: 160px; margin-top: 10px; }
+.rich-editor-fallback-hidden { display: none; }
+.gallery-row-grid { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 10px; }
 .ql-toolbar.ql-snow { background: var(--navy-2); border-color: var(--border) !important; border-radius: 6px 6px 0 0; }
 .ql-container.ql-snow { border-color: var(--border) !important; border-radius: 0 0 6px 6px; min-height: 160px; font-size: 14px; }
 .ql-editor { color: var(--text-light); min-height: 160px; }

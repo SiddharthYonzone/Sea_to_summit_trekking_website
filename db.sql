@@ -1,6 +1,7 @@
 -- ============================================================
 -- Sea to Summit Trekking - Database Schema + Seed Data (v3)
--- Import this whole file via phpMyAdmin (Import tab) or:
+-- Docker imports this file automatically on the first database startup.
+-- Manual import:
 --   mysql -u root -p < db.sql
 --
 -- This version replaces per-trek accommodation/transport rows with
@@ -71,6 +72,14 @@ CREATE TABLE treks (
     highlights TEXT NOT NULL,         -- rich-text HTML (from the admin editor)
     includes_list TEXT,               -- newline separated inclusions
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE trek_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    trek_id INT NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (trek_id) REFERENCES treks(id) ON DELETE CASCADE
 );
 
 -- ------------------------------------------------------------
@@ -244,6 +253,11 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
 ('stat_routes_label', 'TREK ROUTES'),
 ('stat_safety', '100%'),
 ('stat_safety_label', 'SAFETY RECORD'),
+
+('group_discount_4', '0'),
+('group_discount_6', '0'),
+('group_discount_8', '0'),
+('group_discount_10', '0'),
 
 ('why_eyebrow', 'WHY SEA TO SUMMIT TREKKING'),
 ('why_heading_line1', 'BUILT FOR THE'),
@@ -497,6 +511,8 @@ INSERT INTO itinerary_days (trek_id, sort_order, day_label, title, short_desc, d
 -- Mountain profile posts (linked from the Great Himalayan Trail
 -- map hotspots on the homepage)
 -- ------------------------------------------------------------
+INSERT INTO posts (slug, title, excerpt, body, image_url, is_published, published_at) VALUES ('rara-lake', 'Rara Lake (2,990m)', 'Nepal''s largest lake, hidden among the forests and mountains of the remote west.', 'Rara Lake is Nepal''s largest lake, set at 2,990 metres inside Rara National Park in the remote far-western Himalaya. Its deep blue water, pine forests, and quiet mountain trails make it one of Nepal''s most distinctive wilderness destinations.', 'assets/images/mountains/full/rara-Lake.png', 1, CURDATE());
+INSERT INTO posts (slug, title, excerpt, body, image_url, is_published, published_at) VALUES ('api', 'API (7,123m)', 'A remote far-western Himalayan peak rising above the trails near the Tibetan border.', 'Api is a 7,123-metre peak in Nepal''s far-western Himalaya. The mountain rises above one of the country''s least-visited trekking regions, where remote valleys, high passes, and Tibetan-influenced villages define the journey.', 'assets/images/mountains/full/api.png', 1, CURDATE());
 INSERT INTO posts (slug, title, excerpt, body, image_url, is_published, published_at) VALUES ('chyoro-ri', 'Chyoro Ri (6,034m)', 'A remote trekking peak in far-western Nepal, marking the wild western end of the Great Himalayan Trail.', 'Chyoro Ri stands at 6,034 metres in the remote far-west of Nepal, close to Rara Lake and the Shey Phoksundo region -- some of the least-visited high country in the entire Himalaya. Along the Great Himalayan Trail, this section marks the wild western frontier of the route, days from the nearest road, where trails pass through Rara National Park and skirt the edge of Dolpo.
 
 Few trekkers make it this far west, which is exactly the appeal: empty trails, untouched Tibetan-influenced villages, and mountain wilderness that seems to stretch forever. Our western GHT departures include this stretch for trekkers who want to see Nepal well beyond the popular circuits.', 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=900', 1, CURDATE());

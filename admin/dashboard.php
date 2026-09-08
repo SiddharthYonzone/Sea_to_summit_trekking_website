@@ -64,7 +64,7 @@ $revenue = $conn->query("SELECT SUM(total_price) s FROM bookings WHERE status !=
         <tr>
             <th>ID</th><th>Trek</th><th>Traveller</th><th>Contact</th>
             <th>Group</th><th>Start Date</th><th>Accommodation</th><th>Transport</th>
-            <th>Total</th><th>Status</th><th>Update</th>
+            <th>Total</th><th>Status</th><th>View</th><th>Update</th>
         </tr>
     </thead>
     <tbody>
@@ -80,6 +80,7 @@ $revenue = $conn->query("SELECT SUM(total_price) s FROM bookings WHERE status !=
             <td><?= h($b['trans_name']) ?></td>
             <td>$<?= number_format($b['total_price']) ?></td>
             <td><span class="status-pill <?= h($b['status']) ?>"><?= h($b['status']) ?></span></td>
+            <td><a href="../booking-confirmation.php?id=<?= (int)$b['id'] ?>&code=<?= urlencode(booking_confirmation_code($b['id'])) ?>" class="icon-btn icon-only" title="View booking confirmation" aria-label="View booking confirmation">&#128065;</a></td>
             <td>
                 <form method="POST" style="display:flex;gap:6px;">
                     <input type="hidden" name="booking_id" value="<?= (int)$b['id'] ?>">

@@ -90,12 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         ],
                         handlers: {
                             image: function () {
-                                var url = prompt('Paste an image URL:');
-                                if (url) {
-                                    var range = quill.getSelection(true);
-                                    quill.insertEmbed(range.index, 'image', url, 'user');
-                                    quill.setSelection(range.index + 1);
-                                }
+                                uploadEditorImage(quill);
                             }
                         }
                     }
@@ -163,12 +158,43 @@ document.addEventListener('DOMContentLoaded', function () {
     // "Add a brand new accommodation/transport" rows (trek-form.php) — can be empty
     setupRepeatingGroup('accomNewRows', 'addAccomNewRow', 'accomNewRowTemplate', '.new-option-row-grid', 0);
     setupRepeatingGroup('transNewRows', 'addTransNewRow', 'transNewRowTemplate', '.new-option-row-grid', 0);
+    setupRepeatingGroup('galleryImageRows', 'addGalleryImage', 'galleryImageTemplate', '.gallery-row-grid', 0);
 
     // ---------- Rich text editors (Quill) for trek Description / Highlights ----------
+    function uploadEditorImage(quill) {
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/jpeg,image/png,image/webp';
+        fileInput.click();
+        fileInput.addEventListener('change', function () {
+            var file = fileInput.files[0];
+            if (!file) return;
+
+            var formData = new FormData();
+            formData.append('image', file);
+            fetch('trek-image-upload.php', { method: 'POST', body: formData })
+                .then(function (response) {
+                    return response.json().then(function (data) {
+                        if (!response.ok) throw new Error(data.error || 'Image upload failed.');
+                        return data;
+                    });
+                })
+                .then(function (data) {
+                    var range = quill.getSelection(true) || { index: quill.getLength() };
+                    quill.insertEmbed(range.index, 'image', data.url, 'user');
+                    quill.setSelection(range.index + 1);
+                })
+                .catch(function (error) {
+                    alert(error.message);
+                });
+        });
+    }
+
     function initRichEditor(editorId, hiddenInputId, placeholderText) {
         var editorEl = document.getElementById(editorId);
         var hiddenInput = document.getElementById(hiddenInputId);
-        if (!editorEl || !hiddenInput || typeof Quill === 'undefined') return;
+        if (!editorEl || !hiddenInput) return;
+        if (typeof Quill === 'undefined') return;
 
         var quill = new Quill('#' + editorId, {
             theme: 'snow',
@@ -183,17 +209,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     ],
                     handlers: {
                         image: function () {
-                            var url = prompt('Paste an image URL:');
-                            if (url) {
-                                var range = quill.getSelection(true);
-                                quill.insertEmbed(range.index, 'image', url, 'user');
-                                quill.setSelection(range.index + 1);
-                            }
+                            uploadEditorImage(quill);
                         }
                     }
                 }
             }
         });
+
+        hiddenInput.classList.add('rich-editor-fallback-hidden');
 
         // Seed with existing content
         if (hiddenInput.value.trim() !== '') {

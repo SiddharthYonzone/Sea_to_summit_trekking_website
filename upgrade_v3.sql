@@ -5,15 +5,13 @@
 -- (with per-trek accommodation_options / transport_options tables)
 -- and want to keep your existing treks and bookings.
 --
--- ⚠️  BACK UP YOUR DATABASE FIRST (phpMyAdmin → your database →
---     Export → Go) — this migration restructures core tables.
+-- BACK UP YOUR DATABASE FIRST with mysqldump; this migration
+-- restructures core tables.
 --
--- If you're starting completely fresh, ignore this file — just
--- import db.sql, it already includes everything below.
---
--- Run once, top to bottom. How to run: phpMyAdmin → your database
--- → SQL tab → paste this whole file → Go.
---
+-- Docker command:
+-- docker compose exec -T db mysql -u root -proot_password_change_me
+-- seatosummit < upgrade_v3.sql
+-- ============================================================
 -- What this does:
 --  1. Adds social-login columns to customers (google_id, facebook_id,
 --     avatar_url) and makes password_hash nullable.

@@ -91,16 +91,35 @@ document.addEventListener('DOMContentLoaded', function () {
     var basePrice = parseFloat(basePriceEl.value);
     var accomExtra = 0;
     var transExtra = 0;
-    var groupSize = 1;
 
     var totalDisplay = document.getElementById('panelTotal');
+    var originalTotalDisplay = document.getElementById('panelOriginalTotal');
+    var totalLabel = document.getElementById('panelTotalLabel');
     var accomHidden = document.getElementById('selectedAccommodation');
     var transHidden = document.getElementById('selectedTransport');
     var groupHidden = document.getElementById('selectedGroupSize');
+    var bookingPanel = document.querySelector('.booking-panel');
+    var groupSize = parseInt(groupHidden.value, 10) || 1;
+    var discountTiers = [4, 6, 8, 10].map(function (threshold) {
+        return {
+            threshold: threshold,
+            percent: Math.max(0, Math.min(100, parseFloat(bookingPanel.getAttribute('data-discount-' + threshold)) || 0))
+        };
+    });
 
     function recalc() {
-        var total = (basePrice + accomExtra + transExtra) * groupSize;
+        var subtotal = (basePrice + accomExtra + transExtra) * groupSize;
+        var discount = 0;
+        discountTiers.forEach(function (tier) {
+            if (groupSize >= tier.threshold) discount = Math.max(discount, tier.percent);
+        });
+        var total = Math.round((subtotal * (1 - discount / 100)) / 5) * 5;
+        if (originalTotalDisplay) {
+            originalTotalDisplay.textContent = '$' + Math.round(subtotal).toLocaleString();
+            originalTotalDisplay.style.display = discount > 0 ? '' : 'none';
+        }
         totalDisplay.textContent = '$' + total.toLocaleString(undefined, {maximumFractionDigits: 0});
+        if (totalLabel) totalLabel.textContent = discount > 0 ? 'Discounted total' : 'Total';
     }
 
     // Initialize default selections on page load

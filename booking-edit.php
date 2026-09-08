@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$trans) $errors[] = 'Invalid transport option.';
 
     if (empty($errors)) {
-        $total_price = ((float)$trek['base_price'] + (float)$accom['extra_price'] + (float)$trans['extra_price']) * $group_size;
+        $total_price = calculate_booking_total($trek['base_price'], $accom['extra_price'], $trans['extra_price'], $group_size);
 
         $upd = $conn->prepare("UPDATE bookings SET accommodation_id=?, transport_id=?, group_size=?, start_date=?, total_price=? WHERE id=?");
         $upd->bind_param('iiisdi', $accommodation_id, $transport_id, $group_size, $start_date, $total_price, $id);
@@ -92,7 +92,11 @@ $transports = $transports->get_result();
         <div class="alert alert-error"><?php foreach ($errors as $e): ?><div><?= h($e) ?></div><?php endforeach; ?></div>
     <?php endif; ?>
 
-    <form method="POST" class="booking-panel" style="position:static;">
+        <form method="POST" class="booking-panel" style="position:static;"
+            data-discount-4="<?= h(get_setting('group_discount_4', '0')) ?>"
+            data-discount-6="<?= h(get_setting('group_discount_6', '0')) ?>"
+            data-discount-8="<?= h(get_setting('group_discount_8', '0')) ?>"
+            data-discount-10="<?= h(get_setting('group_discount_10', '0')) ?>">
         <input type="hidden" name="id" value="<?= (int)$id ?>">
         <input type="hidden" id="basePrice" value="<?= h($trek['base_price']) ?>">
         <input type="hidden" id="selectedAccommodation" name="accommodation_id" value="<?= (int)$booking['accommodation_id'] ?>">
@@ -100,8 +104,16 @@ $transports = $transports->get_result();
         <input type="hidden" id="selectedGroupSize" name="group_size" value="<?= (int)$booking['group_size'] ?>">
 
         <div class="panel-eyebrow">UPDATE YOUR TREK</div>
+        <div class="panel-original-total" id="panelOriginalTotal" style="display:none;"></div>
         <div class="panel-total" id="panelTotal">$<?= number_format($booking['total_price']) ?></div>
-        <div class="panel-total-label">Total</div>
+        <div class="panel-total-label" id="panelTotalLabel">Total</div>
+
+        <div class="panel-section-title">&#128101; GROUP SIZE</div>
+        <div class="group-size-row">
+            <?php foreach ([1,2,4,6,8,10] as $size): ?>
+                <button type="button" class="group-size-btn <?= (int)$booking['group_size'] === $size ? 'selected' : '' ?>" data-size="<?= $size ?>"><?= $size ?></button>
+            <?php endforeach; ?>
+        </div>
 
         <div class="panel-section-title">&#127968; ACCOMMODATION</div>
         <?php while ($a = $accommodations->fetch_assoc()):
@@ -138,13 +150,6 @@ $transports = $transports->get_result();
                 </div>
             </div>
         <?php endwhile; ?>
-
-        <div class="panel-section-title">&#128101; GROUP SIZE</div>
-        <div class="group-size-row">
-            <?php foreach ([1,2,4,6,8,10] as $size): ?>
-                <button type="button" class="group-size-btn <?= (int)$booking['group_size'] === $size ? 'selected' : '' ?>" data-size="<?= $size ?>"><?= $size ?></button>
-            <?php endforeach; ?>
-        </div>
 
         <div class="panel-section-title">&#128197; START DATE</div>
         <div class="form-field">

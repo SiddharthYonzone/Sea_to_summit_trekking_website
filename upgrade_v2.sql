@@ -5,11 +5,12 @@
 -- (the one with the admin CMS / "Edit Website" panel) and don't want
 -- to lose your treks/bookings by re-importing db.sql from scratch.
 --
--- If you're starting completely fresh, ignore this file — just
+-- If you're starting completely fresh, ignore this file -- just
 -- import db.sql, it already includes everything below.
 --
--- Run once. How to run: phpMyAdmin → select the `seatosummit`
--- database → SQL tab → paste this whole file → Go.
+-- Docker command:
+-- docker compose exec -T db mysql -u root -proot_password_change_me
+-- seatosummit < upgrade_v2.sql
 -- ============================================================
 
 USE seatosummit;
