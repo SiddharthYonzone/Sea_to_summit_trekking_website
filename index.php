@@ -1,0 +1,287 @@
+<?php
+require_once 'config.php';
+$page_title = 'Home';
+$active = 'home';
+$base = '';
+
+$featured = $conn->query("SELECT * FROM treks ORDER BY id ASC LIMIT 3");
+$heroVideo = get_setting('hero_video_path', '');
+$heroYoutube = get_setting('hero_video_youtube', '');
+?>
+<?php include 'includes/header.php'; ?>
+
+<section class="hero" <?php if (!$heroVideo && !$heroYoutube): ?>style="background-image:url('<?= h(get_setting('hero_bg_image')) ?>');"<?php endif; ?>>
+    <?php if ($heroVideo): ?>
+        <video class="hero-video" autoplay muted loop playsinline poster="<?= h(get_setting('hero_bg_image')) ?>">
+            <source src="<?= h($heroVideo) ?>">
+        </video>
+    <?php elseif ($heroYoutube): ?>
+        <div class="hero-youtube-wrapper">
+            <div class="hero-youtube-container">
+                <iframe class="hero-youtube-iframe" src="https://www.youtube.com/embed/<?= h($heroYoutube) ?>?autoplay=1&mute=1&loop=1&playlist=<?= h($heroYoutube) ?>&controls=0&modestbranding=1&rel=0&showinfo=0&disablekb=1&fs=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    <?php endif; ?>
+    <div class="hero-content">
+        <div class="hero-eyebrow"><span class="line"></span> <?= get_setting('hero_eyebrow') ?></div>
+        <h1><?= h(get_setting('hero_line1')) ?><br><span class="accent"><?= h(get_setting('hero_line2')) ?></span><br><?= h(get_setting('hero_line3')) ?></h1>
+        <p class="hero-desc"><?= h(get_setting('hero_description')) ?></p>
+        <div class="hero-actions">
+            <a href="treks.php" class="btn btn-primary">EXPLORE TREKS &rarr;</a>
+            <a href="https://wa.me/<?= h(get_setting('whatsapp_number', WHATSAPP_NUMBER)) ?>" target="_blank" class="btn btn-outline">TALK TO A GUIDE</a>
+        </div>
+    </div>
+</section>
+
+<section class="stats-bar">
+    <div class="stats-grid">
+        <div><div class="stat-num"><?= h(get_setting('stat_years')) ?></div><div class="stat-label"><?= h(get_setting('stat_years_label')) ?></div></div>
+        <div><div class="stat-num"><?= h(get_setting('stat_trekkers')) ?></div><div class="stat-label"><?= h(get_setting('stat_trekkers_label')) ?></div></div>
+        <div><div class="stat-num"><?= h(get_setting('stat_routes')) ?></div><div class="stat-label"><?= h(get_setting('stat_routes_label')) ?></div></div>
+        <div><div class="stat-num"><?= h(get_setting('stat_safety')) ?></div><div class="stat-label"><?= h(get_setting('stat_safety_label')) ?></div></div>
+    </div>
+</section>
+
+<section class="section ght-section">
+    <div class="section-eyebrow"><?= h(get_setting('ght_eyebrow', 'OUR BIGGEST ACHIEVEMENT')) ?></div>
+    <h2><?= h(get_setting('ght_heading', 'THE GREAT HIMALAYAN TRAIL')) ?></h2>
+    <p class="ght-desc"><?= h(get_setting('ght_description', "Our guides have completed the full Great Himalayan Trail across Nepal -- an unbroken high-altitude route running the entire length of the country, east to west, linking the foot of the world's tallest peaks.")) ?></p>
+
+    <?php
+    // Hotspot positions are calibrated to assets/images/ght-map.png specifically
+    // (percentages of the image's width/height, measured along the actual
+    // route line) — each marker is that peak/lake's own artwork and links to
+    // its profile page (managed under Admin -> Info Posts).
+$ghtPeaks = [
+        ['slug' => 'phewa-lake',     'name' => 'Phewa Lake',      'elev' => '742m',   'x' => 44.0, 'y' => 58.5, 'pos' => 'left'],
+        ['slug' => 'tilicho-lake',   'name' => 'Tilicho Lake',    'elev' => '4,919m', 'x' => 29.5, 'y' => 33.0, 'pos' => 'top'],
+        ['slug' => 'tilicho-lake',   'name' => 'Tilicho Lake',    'elev' => '4,919m', 'x' => 29.5, 'y' => 33.0, 'pos' => 'top'],
+        ['slug' => 'rara-lake',     'name' => 'Rara Lake',      'elev' => '2,990m', 'x' => 43.0, 'y' => 41.0, 'pos' => 'top'],
+        ['slug' => 'annapurna',      'name' => 'Annapurna I',     'elev' => '8,091m', 'x' => 50.0, 'y' => 37.0, 'pos' => 'top'],
+        ['slug' => 'machapuchare',   'name' => 'Machapuchare', 'elev' => '6,993m', 'x' => 50.5, 'y' => 36.0, 'pos' => 'bottom-right'],
+        ['slug' => 'manaslu',        'name' => 'Manaslu',         'elev' => '8,163m', 'x' => 56.0, 'y' => 38.0, 'pos' => 'top'],
+        ['slug' => 'dhaulagiri',     'name' => 'Dhaulagiri',      'elev' => '8,167m', 'x' => 48.0, 'y' => 43.0, 'pos' => 'bottom-right'],
+        ['slug' => 'API',     'name' => 'API',      'elev' => '7,123m', 'x' => 10.9, 'y' => 12.0, 'pos' => 'top-left'],
+        ['slug' => 'saipal',     'name' => 'Saipal',      'elev' => '7,031m', 'x' => 13.0, 'y' => 11.0, 'pos' => 'top-right'],
+        ['slug' => 'langtang',       'name' => 'Langtang Lirung', 'elev' => '7,234m', 'x' => 58.5, 'y' => 48.0, 'pos' => 'top'],
+        ['slug' => 'ganesh-himal',       'name' => 'Ganesh Himal', 'elev' => '7,110m', 'x' => 58.0, 'y' => 36.0, 'pos' => 'bottom'],
+        ['slug' => 'kyanjin-ri',     'name' => 'Kyanjin Ri',      'elev' => '4,773m', 'x' => 62.0, 'y' => 46.5, 'pos' => 'top-right'],
+        ['slug' => 'cho-oyu',        'name' => 'Cho Oyu',         'elev' => '8,188m', 'x' => 76.0, 'y' => 37.0, 'pos' => 'top-left'],
+        ['slug' => 'gokyo-ri',    'name' => 'Gokyo Ri',     'elev' => '4,750m', 'x' => 76.0, 'y' => 41.0, 'pos' => 'left'],
+        ['slug' => 'mount-everest',  'name' => 'Mount Everest',   'elev' => '8,848m', 'x' => 77.5, 'y' => 36.5, 'pos' => 'top'],
+        ['slug' => 'lhotse',         'name' => 'Lhotse',          'elev' => '8,516m', 'x' => 79.5, 'y' => 38.5, 'pos' => 'top-right'],
+        ['slug' => 'ama-dablam',     'name' => 'Ama Dablam',      'elev' => '6,812m', 'x' => 79.0, 'y' => 43.5, 'pos' => 'bottom-left'],
+        ['slug' => 'baruntse',       'name' => 'Baruntse',        'elev' => '7,129m', 'x' => 80.5, 'y' => 43.5, 'pos' => 'right'],
+        ['slug' => 'mera-peak',      'name' => 'Mera Peak',       'elev' => '6,476m', 'x' => 80.0, 'y' => 47.0, 'pos' => 'bottom'],
+        ['slug' => 'makalu',         'name' => 'Makalu',          'elev' => '8,485m', 'x' => 85.5, 'y' => 38.0, 'pos' => 'top'],
+        ['slug' => 'kangchenjunga',  'name' => 'Kanchenjunga',    'elev' => '8,586m', 'x' => 94.0, 'y' => 30.0, 'pos' => 'top'],
+    ];
+
+    // Major Cities (now clickable links with slugs to post-detail or search query)
+    $ghtCities = [
+        ['slug' => 'nepalgunj',      'name' => 'Nepalgunj',      'x' => 20.9, 'y' => 84.5, 'pos' => 'bottom'],
+        ['slug' => 'simmikot',       'name' => 'Simmikot',       'x' => 17.5, 'y' => 22.5, 'pos' => 'bottom'],
+        ['slug' => 'pokhara',        'name' => 'Pokhara',        'x' => 45.0, 'y' => 59.5, 'pos' => 'bottom-right'],
+        ['slug' => 'kathmandu',      'name' => 'Kathmandu',      'x' => 64.2, 'y' => 64.0, 'pos' => 'bottom'],
+        ['slug' => 'chitwan',      'name' => 'chitwan',      'x' => 53.2, 'y' => 80.0, 'pos' => 'bottom'],
+        ['slug' => 'namche-bazaar',  'name' => 'Namche Bazaar',  'x' => 79.0, 'y' => 46.5, 'pos' => 'left'],
+        ['slug' => 'lukla',          'name' => 'Lukla',          'x' => 79.5, 'y' => 52.0, 'pos' => 'bottom-right'],
+        ['slug' => 'biratnagar',     'name' => 'Biratnagar',     'x' => 94.0, 'y' => 74.0, 'pos' => 'bottom'],
+        ['slug' => 'bhadrapur',      'name' => 'Bhadrapur',      'x' => 97.3, 'y' => 71.6, 'pos' => 'bottom'],
+    ];
+
+    $ghtIconOverrides = [
+        'langtang'      => 'langtang-lirung',
+        'mount-everest' => 'everest',
+        'kangchenjunga' => 'kanchenjunga',
+    ];
+    ?>
+    <div class="ght-map-wrap">
+        <div class="ght-map-inner">
+            <img src="assets/images/ght-map.png" alt="Map of the Great Himalayan Trail across Nepal" class="ght-map-img">
+
+            <!-- Mountain Hotspots -->
+            <?php foreach ($ghtPeaks as $peak): $iconFile = $ghtIconOverrides[$peak['slug']] ?? $peak['slug']; ?>
+                <div class="ght-node-pin peak-pos-<?= $peak['pos'] ?>"
+                     style="left:<?= $peak['x'] ?>%; top:<?= $peak['y'] ?>%;">
+                    <div class="ght-point-dot"></div>
+                    <div class="ght-leader-line"></div>
+                    <a href="post-detail.php?slug=<?= h($peak['slug']) ?>"
+                       class="ght-hotspot"
+                       title="<?= h($peak['name']) ?> &mdash; <?= h($peak['elev']) ?>">
+                        <span class="ght-hotspot-icon">
+                            <img src="assets/images/mountains/<?= h($iconFile) ?>.png" alt="<?= h($peak['name']) ?>" loading="lazy">
+                        </span>
+                        <span class="ght-hotspot-tip"><b><?= h($peak['name']) ?></b><br><?= h($peak['elev']) ?></span>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+
+            <!-- Clickable & Hoverable City Hotspots -->
+            <?php foreach ($ghtCities as $city): ?>
+                <div class="ght-node-pin city-pos-<?= $city['pos'] ?>"
+                     style="left:<?= $city['x'] ?>%; top:<?= $city['y'] ?>%;">
+                    <div class="ght-point-dot"></div>
+                    <div class="ght-leader-line"></div>
+                    <a href="post-detail.php?slug=<?= h($city['slug']) ?>" class="ght-city-label">
+                        <?= h($city['name']) ?>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <p class="ght-map-hint">Tap any mountain, lake, or city to view its details</p>
+    </div>
+
+    <div class="ght-stats-grid">
+        <div><div class="ght-stat-num"><?= h(get_setting('ght_stat1_num', '1,700km')) ?></div><div class="ght-stat-label"><?= h(get_setting('ght_stat1_label', 'TOTAL DISTANCE')) ?></div></div>
+        <div><div class="ght-stat-num"><?= h(get_setting('ght_stat2_num', '150+')) ?></div><div class="ght-stat-label"><?= h(get_setting('ght_stat2_label', 'DAYS END-TO-END')) ?></div></div>
+        <div><div class="ght-stat-num"><?= h(get_setting('ght_stat3_num', '8')) ?></div><div class="ght-stat-label"><?= h(get_setting('ght_stat3_label', 'MOUNTAIN RANGES CROSSED')) ?></div></div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-eyebrow">CURATED ROUTES</div>
+    <h2>FEATURED <span class="accent">TREKS</span></h2>
+    <div class="trek-grid">
+        <?php while ($t = $featured->fetch_assoc()): ?>
+        <a href="trek-detail.php?slug=<?= h($t['slug']) ?>" class="trek-card">
+            <div class="trek-card-img">
+                <img src="<?= h($t['image_url']) ?>" alt="<?= h($t['title']) ?>">
+                <?php if ($t['badge']): ?><div class="trek-badge"><?= h($t['badge']) ?></div><?php endif; ?>
+                <div class="trek-difficulty <?= h($t['difficulty']) ?>"><?= h($t['difficulty']) ?></div>
+            </div>
+            <div class="trek-card-body">
+                <div class="trek-region"><?= h($t['region']) ?> &middot; <?= h($t['country']) ?></div>
+                <h3><?= h($t['title']) ?></h3>
+                <div class="trek-meta">
+                    <span>&#9201; <?= (int)$t['duration_days'] ?> days</span>
+                    <span>&#9968; <?= number_format($t['max_altitude']) ?>m</span>
+                    <span>&#9733; <?= h($t['rating']) ?></span>
+                </div>
+                <div class="trek-price-row">
+                    <div class="trek-price"><span class="from">From</span><span class="amount">$<?= number_format($t['base_price']) ?></span></div>
+                    <span class="btn btn-outline" style="padding:8px 16px;">VIEW &rarr;</span>
+                </div>
+            </div>
+        </a>
+        <?php endwhile; ?>
+    </div>
+</section>
+
+<?php
+$featuredTours = $conn->query("SELECT * FROM treks WHERE product_type = 'tour' ORDER BY id ASC LIMIT 3");
+if ($featuredTours->num_rows > 0):
+?>
+<section class="section" style="padding-top:0;">
+    <div class="section-eyebrow">BEYOND THE TRAILS</div>
+    <h2>POPULAR <span class="accent">TOURS</span></h2>
+    <div class="trek-grid">
+        <?php while ($t = $featuredTours->fetch_assoc()): ?>
+        <a href="trek-detail.php?slug=<?= h($t['slug']) ?>" class="trek-card">
+            <div class="trek-card-img">
+                <img src="<?= h($t['image_url']) ?>" alt="<?= h($t['title']) ?>">
+                <?php if ($t['badge']): ?><div class="trek-badge"><?= h($t['badge']) ?></div><?php endif; ?>
+                <div class="trek-difficulty <?= h($t['difficulty']) ?>"><?= h($t['difficulty']) ?></div>
+            </div>
+            <div class="trek-card-body">
+                <div class="trek-region"><?= h($t['region']) ?> &middot; <?= h($t['country']) ?></div>
+                <h3><?= h($t['title']) ?></h3>
+                <div class="trek-meta">
+                    <span>&#9201; <?= (int)$t['duration_days'] ?> days</span>
+                    <span>&#9733; <?= h($t['rating']) ?></span>
+                </div>
+                <div class="trek-price-row">
+                    <div class="trek-price"><span class="from">From</span><span class="amount">$<?= number_format($t['base_price']) ?></span></div>
+                    <span class="btn btn-outline" style="padding:8px 16px;">VIEW &rarr;</span>
+                </div>
+            </div>
+        </a>
+        <?php endwhile; ?>
+    </div>
+    <div style="text-align:center;margin-top:30px;">
+        <a href="tours.php" class="btn btn-outline">VIEW ALL TOURS &rarr;</a>
+    </div>
+</section>
+<?php endif; ?>
+
+<section class="section section-light">
+    <div class="why-section">
+        <div>
+            <div class="section-eyebrow"><?= h(get_setting('why_eyebrow')) ?></div>
+            <h2><?= h(get_setting('why_heading_line1')) ?><br><span class="accent"><?= h(get_setting('why_heading_accent')) ?></span> <?= h(get_setting('why_heading_line2')) ?></h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4><?= h(get_setting('feature1_title')) ?></h4>
+                    <p><?= h(get_setting('feature1_desc')) ?></p>
+                </div>
+                <div class="feature-item">
+                    <h4><?= h(get_setting('feature2_title')) ?></h4>
+                    <p><?= h(get_setting('feature2_desc')) ?></p>
+                </div>
+                <div class="feature-item">
+                    <h4><?= h(get_setting('feature3_title')) ?></h4>
+                    <p><?= h(get_setting('feature3_desc')) ?></p>
+                </div>
+            </div>
+        </div>
+        <div class="why-img">
+            <img src="<?= h(get_setting('why_image')) ?>" alt="Himalayan mountains">
+        </div>
+    </div>
+</section>
+
+<?php
+$reviews = $conn->query("SELECT * FROM reviews ORDER BY sort_order ASC, id DESC LIMIT 6");
+?>
+<section class="section">
+    <div class="reviews-header">
+        <div>
+            <div class="section-eyebrow">WHAT TREKKERS SAY</div>
+            <h2>GOOGLE <span class="accent">REVIEWS</span></h2>
+        </div>
+        <div class="google-summary">
+            <svg viewBox="0 0 24 24" width="26" height="26"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.28v3.11A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.28A12 12 0 0 0 0 12c0 1.94.46 3.77 1.28 5.39l3.99-3.11z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.28 6.61l3.99 3.11C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+            <div>
+                <div class="google-rating"><?= h(get_setting('google_avg_rating', '4.8')) ?> &#9733;</div>
+                <div class="google-count"><?= h(get_setting('google_review_count', '0')) ?> Google reviews</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reviews-grid">
+        <?php while ($r = $reviews->fetch_assoc()): ?>
+        <div class="review-card">
+            <div class="review-top">
+                <img class="review-avatar" src="<?= h($r['avatar_url'] ?: 'https://ui-avatars.com/api/?background=16233b&color=2f9ee8&name=' . urlencode($r['reviewer_name'])) ?>" alt="<?= h($r['reviewer_name']) ?>">
+                <div>
+                    <div class="review-name"><?= h($r['reviewer_name']) ?></div>
+                    <div class="review-stars">
+                        <?php for ($i = 0; $i < 5; $i++): ?><?= $i < (int)$r['rating'] ? '&#9733;' : '&#9734;' ?><?php endfor; ?>
+                    </div>
+                </div>
+                <svg viewBox="0 0 24 24" width="18" height="18" class="review-google-icon"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.28v3.11A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.28A12 12 0 0 0 0 12c0 1.94.46 3.77 1.28 5.39l3.99-3.11z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.28 6.61l3.99 3.11C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+            </div>
+            <p class="review-text"><?= h($r['review_text']) ?></p>
+            <?php if ($r['review_date']): ?><div class="review-date"><?= date('F Y', strtotime($r['review_date'])) ?></div><?php endif; ?>
+        </div>
+        <?php endwhile; ?>
+    </div>
+
+    <div style="text-align:center;margin-top:34px;">
+        <a href="<?= h(get_setting('google_review_link', '#')) ?>" target="_blank" class="btn btn-outline">SEE ALL REVIEWS ON GOOGLE &rarr;</a>
+    </div>
+</section>
+
+<section class="cta-banner">
+    <div class="cta-inner">
+        <div>
+            <h2><?= h(get_setting('cta_line1')) ?><br><span class="accent" style="color:var(--blue)"><?= h(get_setting('cta_accent')) ?></span> <?= h(get_setting('cta_line2')) ?></h2>
+        </div>
+        <div class="cta-actions">
+            <a href="treks.php" class="btn btn-primary">VIEW TREKS</a>
+            <a href="https://wa.me/<?= h(get_setting('whatsapp_number', WHATSAPP_NUMBER)) ?>" target="_blank" class="btn btn-outline">WHATSAPP US</a>
+        </div>
+    </div>
+</section>
+
+<?php include 'includes/footer.php'; ?>
