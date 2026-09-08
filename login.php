@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p style="color:var(--text-muted);font-size:12px;margin-top:16px;text-transform:none;">
             Default demo login: <b>admin</b> / <b>admin123</b>
         </p>
-        <a href="index.php" style="display:inline-block;margin-top:10px;color:var(--text-muted);font-size:12px;">CANCEL</a>
+        <a href="index.html" style="display:inline-block;margin-top:10px;color:var(--text-muted);font-size:12px;">CANCEL</a>
     </div>
 </div>
 

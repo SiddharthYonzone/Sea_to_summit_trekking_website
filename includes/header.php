@@ -16,7 +16,7 @@ $b = isset($base) ? $base : '';
 
 <header class="site-header">
     <div class="header-inner">
-        <a href="<?= $b ?>index.php" class="logo">
+        <a href="<?= $b ?>index.html" class="logo">
             <img class="logo-mark" src="<?= $b ?><?= h(get_setting('logo_white_path', 'assets/images/logo-mark-white.png')) ?>" alt="<?= h(get_setting('site_name', 'Sea to Summit')) ?>">
             <div class="logo-text">
                 <span class="logo-title"><?= strtoupper(h(get_setting('site_name', 'Sea to Summit'))) ?></span>
@@ -25,7 +25,7 @@ $b = isset($base) ? $base : '';
         </a>
 
         <nav class="main-nav" id="mainNav">
-            <a href="<?= $b ?>index.php" class="<?= $active === 'home' ? 'active' : '' ?>">HOME</a>
+            <a href="<?= $b ?>index.html" class="<?= $active === 'home' ? 'active' : '' ?>">HOME</a>
             <a href="<?= $b ?>treks.php" class="<?= $active === 'treks' ? 'active' : '' ?>">TREKS</a>
             <a href="<?= $b ?>tours.php" class="<?= $active === 'tours' ? 'active' : '' ?>">TOURS</a>
             <a href="<?= $b ?>travel-options.php" class="<?= $active === 'options' ? 'active' : '' ?>">HOTELS &amp; TRANSPORT</a>

@@ -26,7 +26,7 @@ admin login + dashboard to manage bookings.
 
 ## 3. Run the site
 
-Visit: `http://localhost/seatosummit/index.php`
+Visit: `http://localhost/seatosummit/index.html`
 
 That's it — no Composer, no extra PHP libraries needed. It only uses PHP's
 built-in `mysqli` extension, which XAMPP ships with by default.
@@ -121,7 +121,7 @@ table (via phpMyAdmin → SQL tab).
 ## 5. What's on the site now
 
 **Public pages:**
-- `index.php` — home page: hero (image or **video background** — see
+- `index.html` — home page: hero (image or **video background** — see
   below), stats, a **Great Himalayan Trail** showcase section (stylised
   Nepal map with major peaks and the west-to-east route — see below),
   Featured Treks, Popular Tours (shown once you have at least one), Why
@@ -197,7 +197,7 @@ The heading, description, and the three stat callouts underneath
 themselves are **not** admin-editable — the 15 markers are calibrated to
 percentage positions measured along the actual route line in that
 specific image (green/brown/cyan segments = west/central/east), so
-swapping the map image would need the coordinates in `index.php`
+swapping the map image would need the coordinates in `index.html`
 (`$ghtPeaks` near the top of the GHT section) re-measured to match. The
 small marker icons live in `assets/images/mountains/` (one PNG per
 peak/lake, cropped square from the full artwork) and the full-size
@@ -277,7 +277,7 @@ seatosummit/
 ├── upgrade_v4.sql             Migration: → Tours/logo-upload/GHT-section version
 ├── upgrade_v5.sql             Migration: → GHT map v1 version (11 dot markers)
 ├── upgrade_v6.sql             Migration: → this version (GHT map v2 — real route map, 15 artwork buttons)
-├── index.php                  Home page (hero video, GHT map, Featured Treks, Popular Tours, reviews)
+├── index.html                 Home page (hero video, GHT map, Featured Treks, Popular Tours, reviews)
 ├── treks.php / tours.php      Listings (search + filter by difficulty/duration), same UI for both
 ├── trek-detail.php            Single trek/tour page — rich content, itinerary accordion, booking panel
 ├── travel-options.php         "Hotels & Transport" — browse the accommodation/transport catalog

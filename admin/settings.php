@@ -335,7 +335,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     The map graphic itself (peaks, route line, and clickable mountain links) is a fixed image
                     at <code>assets/images/ght-map.png</code> with hand-placed hotspots, so it isn't editable
                     from here — replacing the image file would require re-mapping hotspot positions in
-                    <code>index.php</code>. Each mountain marker links to that peak's profile, which you CAN
+                    <code>index.html</code>. Each mountain marker links to that peak's profile, which you CAN
                     edit like any other post under <a href="posts.php" style="color:var(--blue);">Admin → Info Posts</a>
                     (slugs: chyoro-ri, dhaulagiri, annapurna, ganesh-himal, manaslu, langtang, mount-everest,
                     gokyo-ri, lhotse, makalu, kangchenjunga).

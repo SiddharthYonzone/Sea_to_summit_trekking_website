@@ -53,7 +53,7 @@ if (!isset($admin_active)) $admin_active = '';
         </nav>
 
         <div class="admin-sidebar-footer">
-            <a href="../index.php" target="_blank" class="btn btn-outline btn-block" style="margin-bottom:10px;">VIEW SITE &#8599;</a>
+            <a href="../index.html" target="_blank" class="btn btn-outline btn-block" style="margin-bottom:10px;">VIEW SITE &#8599;</a>
             <div class="admin-user">Signed in as <b><?= h($_SESSION['admin_username'] ?? '') ?></b></div>
             <a href="../logout.php" class="admin-logout">Logout</a>
         </div>

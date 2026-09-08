@@ -533,7 +533,7 @@ The Kangchenjunga region marks the eastern terminus of the full Great Himalayan 
 
 -- ------------------------------------------------------------
 -- Additional mountain/lake profile posts (Great Himalayan Trail
--- map v2 -- see index.php $ghtPeaks)
+-- map v2 -- see index.html $ghtPeaks)
 -- ------------------------------------------------------------
 INSERT INTO posts (slug, title, excerpt, body, image_url, is_published, published_at) VALUES ('ama-dablam', 'Ama Dablam (6,812m)', 'One of the most photographed mountains in the world, its ridgelines said to resemble a mother''s necklace.', 'Ama Dablam rises to 6,812 metres above the Khumbu valley and is widely considered one of the most beautiful mountains on Earth -- its name translates roughly to "mother''s necklace," describing the hanging glacier on its flank that resembles the traditional double-pendant jewellery worn by Sherpa women.
 

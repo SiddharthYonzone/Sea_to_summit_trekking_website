@@ -12,7 +12,7 @@
 -- ⚠️ This SQL file only adds the blog content. You also need to copy
 -- the actual map image file — grab assets/images/ght-map.png from this
 -- update's zip and drop it into your existing assets/images/ folder
--- (and update index.php / style.css with this version's GHT section
+-- (and update index.html / style.css with this version's GHT section
 -- if you're hand-patching rather than replacing the whole file).
 --
 -- Run once. How to run: phpMyAdmin → your database → SQL tab → paste
