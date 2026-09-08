@@ -3,14 +3,15 @@
 // config.php - Database connection + global site settings
 // ============================================================
 
-// --- Edit these if your XAMPP MySQL setup is different ---
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');          // default XAMPP password is empty
-define('DB_NAME', 'seatosummit');
+// --- Local XAMPP defaults; production values come from environment variables ---
+define('DB_HOST', getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: 'localhost'));
+define('DB_PORT', (int) (getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: 3306)));
+define('DB_USER', getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: 'root'));
+define('DB_PASS', getenv('DB_PASS') ?: (getenv('MYSQLPASSWORD') ?: ''));
+define('DB_NAME', getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: 'seatosummit'));
 
 // --- Connect ---
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error .

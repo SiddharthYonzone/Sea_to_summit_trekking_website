@@ -328,6 +328,28 @@ seatosummit/
   check ownership on every request, not just the account link.
 - The `WHATSAPP_NUMBER` constant in `config.php` is only a fallback now —
   the number shown on the site is whatever's set in Edit Website → General.
+
+## 8. Deploy from GitHub with Railway
+
+GitHub Pages cannot execute PHP or provide MySQL. To deploy the full site,
+connect this GitHub repository to a PHP-capable service such as Railway.
+
+1. Create a new Railway project and deploy this repository. Railway will use
+  the included `Dockerfile` to build the PHP/Apache application.
+2. Add a MySQL service to the same Railway project.
+3. Set these variables on the application service. Use the matching values
+  supplied by the Railway MySQL service:
+  `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, and `MYSQLDATABASE`.
+  The application also accepts the equivalent `DB_HOST`, `DB_PORT`,
+  `DB_USER`, `DB_PASS`, and `DB_NAME` variables.
+4. Import `db.sql` into the Railway MySQL database, then deploy the app.
+5. Add your production domain in Railway and update the `CNAME` file only if
+  you are using a custom domain. OAuth providers must use the new production
+  callback URLs shown by the application.
+
+The included `.htaccess` keeps `index.html` working as a PHP entry point under
+Apache. Do not deploy this application with GitHub Pages; it would expose the
+PHP source instead of executing it.
 - The Google/Facebook login flow uses PHP's `curl` extension, which XAMPP
   enables by default. If login fails immediately with a fatal error,
   check `php.ini` has `extension=curl` uncommented and restart Apache.
